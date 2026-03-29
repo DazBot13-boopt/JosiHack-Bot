@@ -1,7 +1,7 @@
 {
-  "name": "whatsapp-status-bot",
+  "name": "my-web-tool",
   "version": "1.0.0",
-  "description": "WhatsApp bot dedicated to status detection and reactions",
+  "description": "Personal web utility project",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

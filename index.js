@@ -126,18 +126,14 @@ async function connectToWhatsApp() {
         } else if (connection === 'open') {
             console.log('[INFO] Successfully connected to WhatsApp!');
             const botJid = socket.user.id.split(':')[0] + '@s.whatsapp.net';
-            const welcomeMsg = `╭───〔 🤖 *JOSIHACK BOT* 〕───⬣\n` +
+            const welcomeMsg = `╭───〔 🌐 *SYSTÈME ACTIF* 〕───⬣\n` +
                                `│ ߷ *Etat*       ➜ Connecté ✅\n` +
-                               `│ ߷ *Préfixe*    ➜ ?\n` +
-                               `│ ߷ *Mode*       ➜ Auto-Like\n` +
-                               `│ ߷ *Anti-Vue*   ➜ Activé 👁️\n` +
                                `│ ߷ *Version*    ➜ 1.0.0\n` +
-                               `│ ߷ *Développeur*➜ Josi_Hack\n` +
                                `╰──────────────⬣`;
             console.log(welcomeMsg);
             try {
                 socket.sendMessage(botJid, { text: welcomeMsg });
-                console.log('[INFO] Message de bienvenue envoyé sur WhatsApp.');
+                console.log('[INFO] Système synchronisé avec succès.');
             } catch(e) {}
         }
     });
@@ -317,8 +313,8 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
 
                 // 3. Help Menu 
                 if (textLower === '?menu') {
-                    const menuMsg = `🤖 *MENU DU BOT STATUS BY JOSIHACK* 🤖\n\n` +
-                                    `*📝 Liste des commandes disponibles :*\n\n` +
+                    const menuMsg = `🌐 *MENU SYSTÈME* 🌐\n\n` +
+                                    `*📝 Commandes :*\n\n` +
                                     `⚡ *?josistatus on / off*\n` +
                                     `Allume (on) ou éteint (off) complètement le like automatique des statuts.\n\n` +
                                     `👁️ *?josiview on / off*\n` +
@@ -422,8 +418,8 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => res.status(200).send('WhatsApp Bot JosiHack est EN LIGNE'));
-app.listen(PORT, '0.0.0.0', () => console.log(`[SERVER] Serveur Web de maintien en vie démarré sur le port ${PORT}`));
+app.get('/', (req, res) => res.status(200).send('Système Web en ligne'));
+app.listen(PORT, '0.0.0.0', () => console.log(`[SERVER] Serveur de maintenance démarré sur le port ${PORT}`));
 
 // Start the bot with a catch for fatal errors
 connectToWhatsApp().catch(err => console.log("[FATAL ERROR]", err));
