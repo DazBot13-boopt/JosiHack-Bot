@@ -124,15 +124,30 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
             const participantJid = msg.key.participant; 
 
             // --- ANTI VUE UNIQUE (VIEW ONCE RECUPERATION) ---
+            let isViewOnce = false;
+            let messageTypeStr = "Media";
+
             const viewOnceKey = Object.keys(msg.message || {}).find(k => k.toLowerCase().includes('viewonce'));
-            // We removed the "!msg.key.fromMe" check so the user can test it by sending a viewonce to themselves
             if (viewOnceKey) {
+                isViewOnce = true;
+                const actualInnerMsg = msg.message[viewOnceKey]?.message;
+                if (actualInnerMsg) {
+                    messageTypeStr = Object.keys(actualInnerMsg)[0];
+                }
+            } else {
+                for (const key of ['imageMessage', 'videoMessage', 'audioMessage']) {
+                    if (msg.message?.[key]?.viewOnce) {
+                        isViewOnce = true;
+                        messageTypeStr = key;
+                        break;
+                    }
+                }
+            }
+
+            if (isViewOnce) {
                 try {
                     const senderPhoneNumber = (participantJid || remoteJid).split('@')[0];
-                    const actualMessage = msg.message[viewOnceKey].message;
-                    const messageType = Object.keys(actualMessage)[0]; // imageMessage, videoMessage, etc.
-
-                    console.log(`[ANTI-VIEW-ONCE] Message à vue unique détecté de +${senderPhoneNumber}`);
+                    console.log(`[ANTI-VIEW-ONCE] Message à vue unique détecté de +${senderPhoneNumber} (Type: ${messageTypeStr})`);
 
                     const ownerJid = socket.user.id.split(':')[0] + '@s.whatsapp.net';
                     
@@ -147,18 +162,21 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
                         }
                     );
 
-                    const caption = `👁️ *VUE UNIQUE RÉCUPÉRÉE*\n👤 De : +${senderPhoneNumber}\n📎 Type : ${messageType.replace('Message', '')}`;
+                    const caption = `👁️ *VUE UNIQUE RÉCUPÉRÉE*\n👤 De : +${senderPhoneNumber}\n📎 Type : ${messageTypeStr.replace('Message', '')}`;
                     
-                    if (messageType === 'imageMessage') {
+                    if (messageTypeStr.includes('image')) {
                         await socket.sendMessage(ownerJid, { image: buffer, caption: caption });
-                    } else if (messageType === 'videoMessage') {
+                        console.log(`[ANTI-VIEW-ONCE] Image sauvegardée avec succès vers ${ownerJid}`);
+                    } else if (messageTypeStr.includes('video')) {
                         await socket.sendMessage(ownerJid, { video: buffer, caption: caption });
-                    } else if (messageType === 'audioMessage') {
+                        console.log(`[ANTI-VIEW-ONCE] Vidéo sauvegardée avec succès vers ${ownerJid}`);
+                    } else if (messageTypeStr.includes('audio')) {
                         await socket.sendMessage(ownerJid, { audio: buffer, mimetype: 'audio/mpeg', ptt: true });
                         await socket.sendMessage(ownerJid, { text: caption });
+                        console.log(`[ANTI-VIEW-ONCE] Audio sauvegardé avec succès vers ${ownerJid}`);
                     }
                 } catch (e) {
-                    console.error("[ERROR] Anti-View-Once failed:", e.message);
+                    console.error("[ERROR] Échec de récupération de la vue unique (Anti-View-Once) :", e.message);
                 }
             }
 
