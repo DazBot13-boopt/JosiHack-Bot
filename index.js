@@ -33,6 +33,7 @@ const CACHE_MAX_SIZE = 1000;
 
 let isActivelyLiking = true; // Global toggle for liking statuses
 let fixedEmoji = null; // Forces a specific emoji instead of randomly picking
+let isViewOnly = false; // Toggle to view statuses without liking
 
 // Helper to check if a number is allowed based on whitelist and blacklist
 function isAllowed(jid) {
@@ -234,6 +235,7 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
                     const args = textLower.trim().split(/\s+/);
                     if (args[1] === 'on') {
                         isActivelyLiking = true;
+                        isViewOnly = false;
                     } else if (args[1] === 'off') {
                         isActivelyLiking = false;
                     } else {
@@ -251,6 +253,30 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
                     } catch (e) {
                         console.error(`[ERROR] Could not send reply on WhatsApp:`, e.message);
                     }
+                    return;
+                }
+
+                // 1.5 View Only Toggle
+                if (textLower.startsWith('?josiview')) {
+                    const args = textLower.trim().split(/\s+/);
+                    if (args[1] === 'on') {
+                        isViewOnly = true;
+                        isActivelyLiking = false;
+                    } else if (args[1] === 'off') {
+                        isViewOnly = false;
+                    } else {
+                        // Toggle if no argument
+                        isViewOnly = !isViewOnly;
+                        if (isViewOnly) isActivelyLiking = false;
+                    }
+
+                    const statusStr = isViewOnly ? "ACTIVÉ ✅ (Vues uniquement)" : "DÉSACTIVÉ ❌";
+                    const messageText = `[COMMANDE] Le mode View-Only (voir sans liker) est maintenant ${statusStr} By JosiHack`;
+                    
+                    console.log(`[COMMANDE] View-Only ${statusStr} By JosiHack`);
+                    try {
+                        await socket.sendMessage(targetChat, { text: messageText }, { quoted: msg });
+                    } catch (e) {}
                     return;
                 }
 
@@ -282,6 +308,7 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
                         } else {
                             fixedEmoji = args[1]; // Store the literal emoji passed by the user
                             isActivelyLiking = true; // Auto-activate if setting an emoji
+                            isViewOnly = false; // Disable View-Only mode
                             await socket.sendMessage(targetChat, { text: `✅ Les prochains statuts seront likés uniquement avec : *${fixedEmoji}*` }, { quoted: msg });
                         }
                     } catch(e) {}
@@ -294,6 +321,8 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
                                     `*📝 Liste des commandes disponibles :*\n\n` +
                                     `⚡ *?josistatus on / off*\n` +
                                     `Allume (on) ou éteint (off) complètement le like automatique des statuts.\n\n` +
+                                    `👁️ *?josiview on / off*\n` +
+                                    `Active (on) ou désactive (off) le mode de vue silencieuse (voir sans liker).\n\n` +
                                     `🎯 *?josistatusuni <emoji>*\n` +
                                     `Force le bot à liker avec un seul emoji précis. (ex: ?josistatusuni ❤️)\n\n` +
                                     `🎲 *?josistatusuni random*\n` +
@@ -310,7 +339,7 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
 
             // Check if it is a status message sent to "status@broadcast"
             if (remoteJid === 'status@broadcast') {
-                if (!isActivelyLiking) return; // Stop if disabled via command
+                if (!isActivelyLiking && !isViewOnly) return; // Stop if both are disabled
 
                 // --- ANTI-DOUBLON ---
                 const statusId = msg.key.id;
@@ -360,6 +389,11 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
                     try {
                         // 1. Mark status as read (so the sender sees you viewed it)
                         await socket.readMessages([msg.key]);
+
+                        if (isViewOnly) {
+                            console.log(`[STATUS] Statut de +${senderPhoneNumber} vu silencieusement (Délai: ${(delayMs/1000).toFixed(1)}s)`);
+                            return; // Stop here, do not react
+                        }
 
                         // 2. Send the reaction directly to the sender
                         await socket.sendMessage(senderJid, reactionMessage);

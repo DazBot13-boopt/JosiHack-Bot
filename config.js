@@ -23,9 +23,9 @@ module.exports = {
 
     // Provide your phone number if using pairing code (e.g., "1234567890")
     // Include the country code but no '+' sign or spaces.
-    phoneNumber: "22947831885",
-    
+    phoneNumber: "22955724800",
+
     // Supabase credentials for remote auth state storage
-    supabaseUrl: "https://ltzaqirhbovuiipwfqmf.supabase.co",
-    supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0emFxaXJoYm92dWlpcHdmcW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MTQ4MDksImV4cCI6MjA5MDI5MDgwOX0.XmBM-S_JJ3aQj7vXXB6fdYIhsCN3SYVwG5jVCDwtUvU"
+    supabaseUrl: "https://oglsnvlgmahtuhnrtfet.supabase.co",
+    supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nbHNudmxnbWFodHVobnJ0ZmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDE5MDIsImV4cCI6MjA5MDMxNzkwMn0.zcxmKOWpsxu6-lh1C3DbKP2B-4tW7qqBIy_sHXQmocM"
 };
