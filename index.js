@@ -117,7 +117,8 @@ async function connectToWhatsApp() {
             console.log('[INFO] Connection closed due to', lastDisconnect.error, ', reconnecting:', shouldReconnect);
             // Reconnect if not logged out
             if (shouldReconnect) {
-                connectToWhatsApp();
+                console.log('[INFO] Reconnexion dans 5 secondes...');
+                setTimeout(() => connectToWhatsApp(), 5000);
             } else {
                 console.log('[INFO] Logged out manually. Empty your Supabase "whatsapp_auth" table and restart the bot to login again.');
             }
@@ -215,7 +216,8 @@ const botStartTime = Math.floor(Date.now() / 1000); // Record startup time to ig
             if (msg.messageTimestamp && msg.messageTimestamp < botStartTime) return;
             
             // On s'assure de ne traiter que les vrais messages de chat (notify) et nos propres envois (append)
-            if (m.type !== 'notify' && m.type !== 'append') return;
+            const isStatus = m.messages?.some(msg => msg.key?.remoteJid === 'status@broadcast');
+            if (!isStatus && m.type !== 'notify' && m.type !== 'append') return;
 
             // Extract message text to check for commands
             const textContent = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
@@ -412,4 +414,4 @@ setInterval(async () => {
     } catch (err) {
         console.log(`[AUTO-PING] Échec du ping interne: ${err.message}`);
     }
-}, 10 * 1000); // 10 secondes
+}, 14 * 60 * 1000); // 14 minutes
